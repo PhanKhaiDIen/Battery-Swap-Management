@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản trị hệ thống | VinFast EV</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --vinfast-blue: #122147;
+            --accent-color: #3c52e8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Ảnh nền công nghệ lấy từ Internet */
+            background: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hiệu ứng kính mờ cho hộp đăng nhập */
+        .login-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .admin-logo {
+            width: 140px;
+            margin-bottom: 25px;
+        }
+
+        .login-card h3 {
+            font-weight: 700;
+            color: var(--vinfast-blue);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        /* Tùy chỉnh Input */
+        .input-group {
+            background: #f1f3f6;
+            border-radius: 12px;
+            padding: 5px 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent-color);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(60, 82, 232, 0.1);
+        }
+
+        .input-group i {
+            color: #aaa;
+            line-height: 45px;
+        }
+
+        .form-control {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: 45px;
+            font-weight: 500;
+        }
+
+        /* Nút đăng nhập sang trọng */
+        .btn-admin {
+            background: var(--vinfast-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-admin:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(18, 33, 71, 0.3);
+            color: white;
+        }
+
+        .back-home {
+            display: block;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #888;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .back-home:hover { color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <img src="data:image/jpeg;base64,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iuFrka5ra6KydnuCKpArsGt4knjFhNaXth76LEzF7CBcPAaLZr8+Hmol/wASH/dcv/d/9blfdE/6NB/smf4QgzUREBERAREQQ3arhF2McL+hSeXfMe2JDLjYX4OBIB9knzAUc2P7NY2EahFqdbMMxHN3cMMJdYE3cSSBxsB9VaqICIiCn57ZxOx9rAxND3W437IvrnPlaG30y8dDzVwIiCO7QqNFxDg+PSqfl3kQNDcxs3R7TqbHkFr9lGGo+FMK/ZlVyZ945/YdmFiBbWw6KZIgqiPs8mv+b/6UQN0JfeNfbMc/82GuOXLxLrnirXREES2oYejYowg+l0zLvHOY4ZzYdl1zrYrF2RYWj4Rwy+nVbJnMZ0QZHZhYtYOJA1u0qbogLqmi4SrjLAF+U5QTYE20BPiu1EFI4N2KudUYs1jjLEBF2thxHXc4m7nOIAP+56LO2i7JDUJOVlsHshQ2wQ9rg9xBOYhwOYgkm+bj1CuBEGmwdKR6fheXkqxl30OGIbi12YHL2QbkC9wAVuURBTmLtk00K9ErWCpowXRXF72GI+GQXEl2V7OIJPA2t1TAeyOYksSNxBi2M2K9jt41oc6IXOHBz3uAOh1sL6ga8jcaICIiCpdsGzycxhXYU5SN1lZCyHO8tN8zjwDT1CtGmwTLU6HAicWsa024XAAKyUQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERB//2Q==" alt="VinFast" class="admin-logo">
+    
+    <h3>Admin Panel</h3>
+    <p>Hệ thống quản lý Trạm đổi Pin EV</p>
+
+    <form id="loginFormAdmin">
+        <div class="input-group">
+            <i class="fas fa-user-tie"></i>
+            <input type="text" name="username" class="form-control" placeholder="Tài khoản Quản trị" required>
+        </div>
+
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" class="form-control" placeholder="Mật khẩu bảo mật" required>
+        </div>
+
+        <button type="submit" class="btn btn-admin">
+            <i class="fas fa-shield-alt me-2"></i> ĐĂNG NHẬP HỆ THỐNG
+        </button>
+    </form>
+
+    <a href="/" class="back-home">← Quay lại trang chủ</a>
+</div>
+
+<script>
+    document.getElementById("loginFormAdmin").addEventListener("submit", async function(event){
+        event.preventDefault();
+
+        // Hiệu ứng Loading đẹp của SweetAlert2
+        Swal.fire({
+            title: 'Đang xác thực quyền Admin...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading() }
+        });
+
+        const formData = new FormData(this);
+        try {
+            const response = await fetch("/admin/login", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Xác thực thành công',
+                    text: 'Chào mừng Sếp quay trở lại!',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/admin/dashboard';
+                });
+            } else {
+                const errorMsg = await response.text();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Truy cập bị từ chối',
+                    text: errorMsg || 'Sai tài khoản hoặc mật khẩu Admin!'
+                });
+            }
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Lỗi kết nối', text: 'Không thể kết nối đến Server!' });
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments/_header :: common_header('Quản lý Giao dịch')}"></head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <nav th:replace="~{staff/fragments/_header :: navbar}"></nav>
+    <aside th:replace="~{staff/fragments/_header :: sidebar('transactions')}"></aside>
+    <div class="content-wrapper">
+        <section class="content-header"><h1>Giao dịch tại trạm <span class="text-primary" th:text="${station?.name}"></span></h1></section>
+        <section class="content">
+            <div class="container-fluid">
+                <div th:replace="~{admin/fragments/_alerts :: alerts}"></div>
+                <div class="row mb-3"><div class="col-12"><a th:href="@{/staff/transactions/new}" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Tạo giao dịch mới</a></div></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Danh sách Giao dịch (<span th:text="${transactionPage.totalElements}">0</span>)</h3></div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Pin cũ</th><th>Pin mới</th><th>Số tiền</th><th>Trạng thái TT</th><th>Ngày tạo</th></tr></thead>
+                            <tbody>
+                            <tr th:each="tx : ${transactionPage.content}">
+                                <td th:text="${tx.id}"></td>
+                                <td><code th:text="${tx.batteryIn?.serialNumber} ?: 'N/A'"></code></td>
+                                <td><code th:text="${tx.batteryOut?.serialNumber} ?: 'N/A'"></code></td>
+                                <td th:text="${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                                <td><span class="badge" th:classappend="${#strings.equalsIgnoreCase(tx.paymentStatus, 'COMPLETED')} ? 'badge-success' : 'badge-warning'" th:text="${tx.paymentStatus}"></span></td>
+                                <td th:text="${tx.createdAt != null ? #temporals.format(tx.createdAt, 'dd-MM-yyyy HH:mm') : 'N/A'}"></td>
+                            </tr>
+                            <tr th:if="${transactionPage.empty}"><td colspan="6" class="text-center">Chưa có giao dịch nào.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div th:insert="~{admin/fragments/_footer :: footer}"></div>
+</div>
+<div th:insert="~{admin/fragments/_footer :: common_scripts}"></div>
+</body>
+</html>

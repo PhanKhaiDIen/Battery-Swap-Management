@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Login - VinFast EV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --vin-blue: #122147;
+            --vin-accent: #0056b3;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7f6;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            width: 900px;
+            max-width: 95%;
+            min-height: 550px;
+            overflow: hidden;
+        }
+
+        /* PHẦN ẢNH BÊN TRÁI - LẤY TỪ MẠNG */
+        .side-banner {
+            flex: 1;
+            background: url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=2072&auto=format&fit=crop') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        /* Tạo lớp phủ tối để chữ hiện rõ trên ảnh */
+        .side-banner::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .banner-text {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        /* PHẦN FORM BÊN PHẢI */
+        .form-section {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo-box img {
+            width: 130px;
+            margin-bottom: 25px;
+        }
+
+        .login-title {
+            font-weight: 700;
+            color: var(--vin-blue);
+            margin-bottom: 5px;
+        }
+
+        .login-sub {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            border: none;
+            border-bottom: 1.5px solid #ddd;
+            border-radius: 0;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--vin-blue);
+        }
+
+        .btn-login {
+            background: var(--vin-blue);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-login:hover {
+            background: #000;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .side-banner { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="side-banner">
+        <div class="banner-text">
+            <h3>Hệ thống Trạm đổi Pin</h3>
+            <p>Giải pháp quản lý năng lượng thông minh VinFast</p>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="logo-box">
+            <img src="data:image/png;base64,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" alt="VinFast">
+        </div>
+        
+        <h4 class="login-title">Xác minh Staff</h4>
+        <p class="login-sub">Vui lòng đăng nhập tài khoản nhân viên</p>
+
+        <form id="loginFormStaff">
+            <div class="mb-3">
+                <input type="text" class="form-control" name="username" placeholder="Tài khoản nhân viên" required>
+            </div>
+            <div class="mb-4 position-relative">
+                <input type="password" class="form-control" name="password" id="password" placeholder="Mật khẩu" required>
+                <i class="fa-solid fa-eye" id="togglePassword" style="position:absolute; right:0; top:12px; cursor:pointer; color:#ccc;"></i>
+            </div>
+            <button type="submit" class="btn btn-login w-100">ĐĂNG NHẬP HỆ THỐNG</button>
+        </form>
+
+        <div class="text-center mt-4">
+            <a href="/" style="text-decoration:none; color:#aaa; font-size:0.85rem;">← Quay lại trang chủ</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ẩn/Hiện mật khẩu
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // Gửi Form bằng Fetch
+    document.getElementById("loginFormStaff").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        Swal.fire({ title: 'Đang xác thực...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            const response = await fetch("/staff/login", { method: "POST", body: formData });
+            if (response.ok) {
+                Swal.fire({ icon: 'success', title: 'Thành công!', showConfirmButton: false, timer: 1500 })
+                    .then(() => window.location.href = '/staff/dashboard');
+            } else {
+                const msg = await response.text();
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: msg || 'Sai thông tin đăng nhập!' });
+            }
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Lỗi kết nối', text: 'Không thể kết nối đến server!' });
+        }
+    });
+</script>
+
+</body>
+</html>

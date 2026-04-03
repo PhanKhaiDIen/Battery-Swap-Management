@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký gói dịch vụ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=${#dates.createNow().time})}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+
+        /* === Z-INDEX FIX FOR HEADER DROPDOWNS === */
+        .site-header-user {
+            position: relative;
+            z-index: 1000 !important;
+        }
+        .site-header-user .submenu,
+        .site-header-user #notifDropdown {
+            z-index: 1001 !important;
+        }
+        /* === END Z-INDEX FIX === */
+
+        /* Modern Package Page Styles */
+        .packages-page {
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 60px 0 80px;
+        }
+
+        .packages-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .packages-hero {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .packages-hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 12px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .packages-hero .subtitle {
+            font-size: 18px;
+            color: #64748b;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Pricing Toggle */
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .toggle-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Package Grid */
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        /* Package Card */
+        .package-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 28px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .package-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        /* Package Types */
+        .package-card.basic {
+            border-color: #e2e8f0;
+        }
+
+        .package-card.premium {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+            position: relative;
+        }
+
+        .package-card.premium::before {
+            content: '🌟 Phổ biến nhất';
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .package-card.vip {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+        }
+
+        /* Package Header */
+        .package-header {
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 24px;
+        }
+
+        .package-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .package-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px;
+        }
+
+        .package-description {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Package Price */
+        .package-price {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .price-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .price-currency {
+            font-size: 20px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .price-period {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Package Features */
+        .package-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 32px;
+            flex: 1;
+        }
+
+        .package-features li {
+            padding: 10px 0;
+            color: #475569;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.5;
+        }
+
+        .package-features li::before {
+            content: '✓';
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            background: #f0fdf4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Package Button */
+        .package-button {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+
+        .package-button:disabled,
+        .package-button.disabled {
+            background: #e5e7eb !important;
+            color: #9ca3af !important;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+
+        .package-button:disabled:hover,
+        .package-button.disabled:hover {
+            transform: none;
+        }
+
+        .package-card.basic .package-button {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+        }
+
+        .package-card.basic .package-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .package-card.premium .package-button {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .package-card.premium .package-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .package-card.vip .package-button {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+
+        .package-card.vip .package-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Alert Messages */
+        .alert {
+            max-width: 600px;
+            margin: 0 auto 32px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.success {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .alert.error {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+        }
+
+        /* Features Comparison */
+        .features-comparison {
+            margin-top: 80px;
+            background: white;
+            border-radius: 20px;
+            padding: 48px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .comparison-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px;
+        }
+
+        .comparison-header p {
+            font-size: 16px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* ========== PAYMENT CONFIRMATION POPUP ========== */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .popup-container {
+            background: white;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(15, 23, 42, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .popup-header {
+            padding: 32px 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .popup-close:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+        }
+
+        .popup-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .popup-icon.basic {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        }
+
+        .popup-icon.premium {
+            background: linear-gradient(135deg, #dbeafe, #93c5fd);
+        }
+
+        .popup-icon.vip {
+            background: linear-gradient(135deg, #fef3c7, #fcd34d);
+        }
+
+        .popup-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px;
+        }
+
+        .popup-header p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .popup-body {
+            padding: 24px 32px;
+        }
+
+        .package-summary {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 14px;
+        }
+
+        .summary-row:not(:last-child) {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .summary-value.highlight {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .payment-methods {
+            margin-bottom: 24px;
+        }
+
+        .payment-methods h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 12px;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .payment-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .payment-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .payment-option.active {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            position: relative;
+        }
+
+        .payment-option.active::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .payment-option-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .payment-option-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .popup-btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .popup-btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .popup-btn-confirm {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .popup-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .popup-btn-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .package-card.premium {
+                grid-column: 1 / -1;
+                max-width: 400px;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .packages-page {
+                padding: 40px 0 60px;
+            }
+
+            .packages-hero h1 {
+                font-size: 32px;
+            }
+
+            .packages-hero .subtitle {
+                font-size: 16px;
+            }
+
+            .packages-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .package-card {
+                padding: 28px 24px;
+            }
+
+            .package-card.premium {
+                grid-column: auto;
+                max-width: 100%;
+            }
+
+            .price-amount {
+                font-size: 40px;
+            }
+
+            .features-comparison {
+                padding: 32px 20px;
+                margin-top: 60px;
+            }
+
+            .popup-container {
+                margin: 20px;
+            }
+
+            .popup-header,
+            .popup-body {
+                padding: 24px 20px;
+            }
+
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .packages-wrapper {
+                padding: 0 16px;
+            }
+
+            .packages-hero h1 {
+                font-size: 28px;
+            }
+
+            .package-card {
+                padding: 24px 20px;
+            }
+
+            .price-amount {
+                font-size: 36px;
+            }
+
+            .package-button {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+
+            .popup-header h3 {
+                font-size: 20px;
+            }
+
+            .popup-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:insert="user/header-user :: site-header-user"></div>
+
+<main class="packages-page">
+    <div class="packages-wrapper">
+
+        <!-- Alert Messages -->
+        <div th:if="${message}" class="alert success">
+            <span class="alert-icon">✓</span>
+            <span th:text="${message}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert error">
+            <span class="alert-icon">⚠</span>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="packages-hero">
+            <h1>Chọn gói phù hợp với bạn</h1>
+            <p class="subtitle">Nâng cấp trải nghiệm với các gói dịch vụ linh hoạt</p>
+        </div>
+
+        <!-- Package Grid -->
+        <div class="packages-grid">
+
+            <!-- Basic Package -->
+            <div class="package-card basic">
+                <div class="package-header">
+                    <h3 class="package-name">Cơ Bản</h3>
+                    <p class="package-description">Phù hợp cho người dùng mới</p>
+                </div>
+
+                <div class="package-price">
+                    <div th:text="${#numbers.formatDecimal(price_amount_30, 0, 'POINT', 0, 'NONE')}" class="price-amount">
+                        0
+                        <span class="price-currency">VNĐ</span>
+                    </div>
+                    <div th:text="${content_pack_30}" class="price-period">0 ngày sử dụng</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>Đổi pin không giới hạn</li>
+                    <li>Hỗ trợ 24/7</li>
+                    <li>Thời hạn 30 ngày</li>
+                    <li>Quy trình tiêu chuẩn</li>
+                </ul>
+
+                <button th:if="${rental != null}" class="package-button disabled">
+
+                    <span th:if="${rental.getTotalAmount() != price_amount_30}">Đăng ký ngay</span>
+                    <span th:if="${rental.getTotalAmount() == price_amount_30}">Gói hiện tại của bạn</span>
+
+                </button>
+
+                <button th:if="${rental == null}" class="package-button" th:onclick="|openPaymentPopup('basic', 'Cơ Bản', '${price_amount_30}', '${days_30}')|">
+                    <span >Đăng ký ngay</span>
+                    <span>→</span>
+                </button>
+
+
+            </div>
+
+            <!-- Premium Package -->
+            <div class="package-card premium">
+                <div class="package-header">
+                    <h3 class="package-name">Premium</h3>
+                    <p class="package-description">Lựa chọn tốt nhất</p>
+                </div>
+
+                <div class="package-price">
+                    <div th:text="${#numbers.formatDecimal(price_amount_90, 0, 'POINT', 0, 'NONE')}" class="price-amount">
+                        0
+                        <span class="price-currency">VNĐ</span>
+                    </div>
+                    <div th:text="${content_pack_90}" class="price-period">0 ngày sử dụng</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>Đổi pin không giới hạn</li>
+                    <li>Ưu tiên đặt lịch</li>
+                    <li>Hỗ trợ VIP 24/7</li>
+                    <li>Phản hồi nhanh chóng</li>
+                    <li>Tích điểm thưởng</li>
+                </ul>
+
+                <button th:if="${rental != null}" class="package-button disabled">
+
+                    <span th:if="${rental.getTotalAmount() != price_amount_90}">Đăng ký ngay</span>
+                    <span th:if="${rental.getTotalAmount() == price_amount_90}">Gói hiện tại của bạn</span>
+
+                </button>
+
+                <button th:if="${rental == null}" class="package-button" th:onclick="|openPaymentPopup('basic', 'Nâng Cao', '${price_amount_90}', '${days_90}')|">
+                    <span>Đăng ký ngay</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <!-- VIP Package -->
+            <div class="package-card vip">
+                <div class="package-header">
+                    <h3 class="package-name">VIP</h3>
+                    <p class="package-description">Trải nghiệm cao cấp</p>
+                </div>
+
+                <div class="package-price">
+                    <div th:text="${#numbers.formatDecimal(price_amount_180, 0, 'POINT', 0, 'NONE')}" class="price-amount">
+                        300K
+                        <span class="price-currency">VNĐ</span>
+                    </div>
+                    <div th:text="${content_pack_180}" class="price-period">0 ngày sử dụng</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>Đổi pin không giới hạn</li>
+                    <li>Ưu tiên cao nhất</li>
+                    <li>Hỗ trợ VIP độc quyền</li>
+                    <li>Miễn phí vận chuyển</li>
+                    <li>Tích điểm x2</li>
+                    <li>Quà tặng đặc biệt</li>
+                </ul>
+
+
+                <button th:if="${rental != null}" class="package-button disabled">
+
+                    <span th:if="${rental.getTotalAmount() != price_amount_180}">Đăng ký ngay</span>
+                    <span th:if="${rental.getTotalAmount() == price_amount_180}">Gói hiện tại của bạn</span>
+
+                </button>
+
+                <button th:if="${rental == null}" class="package-button" th:onclick="|openPaymentPopup('basic', 'Cao Cấp', '${price_amount_180}', '${days_180}')|">
+                    <span>Đăng ký ngay</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</main>
+
+<!-- Payment Confirmation Popup -->
+<div class="popup-overlay" id="paymentPopup">
+    <div class="popup-container">
+        <div class="popup-header">
+            <button class="popup-close" onclick="closePaymentPopup()">×</button>
+            <div class="popup-icon" id="popupIcon">
+                <span id="popupIconEmoji">💎</span>
+            </div>
+            <h3>Xác nhận thanh toán</h3>
+            <p>Vui lòng kiểm tra thông tin trước khi thanh toán</p>
+        </div>
+
+        <div class="popup-body">
+            <div class="package-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Gói dịch vụ</span>
+                    <span class="summary-value" id="packageName">Premium</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Thời hạn</span>
+                    <span class="summary-value"><span id="packageDuration">30</span> ngày</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Tổng thanh toán</span>
+                    <span class="summary-value highlight"><span id="packagePrice">150,000</span> VNĐ</span>
+                </div>
+            </div>
+
+            <div class="popup-actions">
+                <button class="popup-btn popup-btn-cancel" onclick="closePaymentPopup()">
+                    <span>Hủy</span>
+                </button>
+                <button class="popup-btn popup-btn-confirm" onclick="confirmPayment()">
+                    <span>Xác nhận thanh toán</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:insert="footer :: site-footer"></div>
+
+<script>
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            alert.style.transition = 'all 0.3s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+            setTimeout(() => alert.remove(), 300);
+        });
+    }, 5000);
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Payment method selection
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            this.classList.add('active');
+            this.querySelector('input[type="radio"]').checked = true;
+        });
+    });
+
+    // Store current package data
+    let currentPackage = {
+        type: '',
+        name: '',
+        price: '',
+        duration: ''
+    };
+
+    // Open payment popup
+    function openPaymentPopup(type, name, price, duration) {
+        currentPackage = { type, name, price, duration };
+
+        // Update popup content
+        document.getElementById('packageName').textContent = name;
+        document.getElementById('packagePrice').textContent = price;
+        document.getElementById('packageDuration').textContent = duration;
+
+        // Update icon based on package type
+        const popupIcon = document.getElementById('popupIcon');
+        const popupIconEmoji = document.getElementById('popupIconEmoji');
+
+        popupIcon.className = 'popup-icon ' + type;
+
+        switch(type) {
+            case 'basic':
+                popupIconEmoji.textContent = '📦';
+                break;
+            case 'premium':
+                popupIconEmoji.textContent = '💎';
+                break;
+            case 'vip':
+                popupIconEmoji.textContent = '👑';
+                break;
+        }
+
+        // Show popup
+        document.getElementById('paymentPopup').classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Close payment popup
+    function closePaymentPopup() {
+        document.getElementById('paymentPopup').classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Close popup when clicking outside
+    document.getElementById('paymentPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePaymentPopup();
+        }
+    });
+
+    // Close popup with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePaymentPopup();
+        }
+    });
+
+    async function confirmPayment() {
+        // kiểm tra đã chọn phương thức thanh toán chưa (nếu có dùng radio)
+        const paymentRadio = document.querySelector('input[name="payment"]:checked');
+        const selectedPayment = paymentRadio ? paymentRadio.value : null;
+
+        // Disable button để tránh bấm nhiều lần
+        const confirmBtn = document.querySelector('.popup-btn-confirm');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span>Đang xử lý...</span>';
+
+        // Tạo name_pack đúng định dạng: "Gói Cơ Bản 30 ngày"
+        const namePack = `Gói ${currentPackage.name} ${currentPackage.duration} ngày`;
+        const days = currentPackage.duration;
+
+        try {
+            const response = await fetch(
+                `/api/register-package?name_pack=${encodeURIComponent(namePack)}&days=${encodeURIComponent(days)}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Body tuỳ bạn, nếu API không cần thì có thể bỏ body luôn
+                    body: JSON.stringify({
+                        paymentMethod: selectedPayment
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+
+            // Nếu backend trả JSON thì đọc, còn không cần thì bỏ dòng này
+            // const data = await response.json();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: `Đăng ký gói ${namePack} thành công!`
+            }).then(() => {
+                // Ví dụ: redirect sang trang lịch sử gói / trang chủ
+                window.location.href = '/';
+            });
+
+        } catch (e) {
+            console.error(e);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Thanh toán thất bại, vui lòng thử lại.'
+            });
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<span>Xác nhận thanh toán</span>';
+            closePaymentPopup();
+        }
+    }
+</script>
+
+</body>
+</html>

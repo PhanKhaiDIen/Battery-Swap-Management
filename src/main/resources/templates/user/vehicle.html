@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên kết phương tiện</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .payment-btn {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .payment-btn:hover {
+            border-color: #4CAF50;
+            background: #f8fff9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .payment-btn.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .payment-btn i {
+            font-size: 20px;
+        }
+
+        .vehicle-info-container {
+            display: none;
+            margin-bottom: 16px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .vehicle-info-container.show {
+            display: block;
+        }
+
+        .other-input-container {
+            display: none;
+            margin-top: 16px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .other-input-container.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field .label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .field input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .field input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .info-badge i {
+            margin-right: 6px;
+        }
+
+        .required {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="header :: site-header"></div>
+<main class="auth">
+    <div class="container auth-inner">
+        <section class="auth-card" aria-labelledby="payment-title">
+            <h1 id="payment-title" class="auth-title">Liên kết phương tiện</h1>
+            <p class="auth-subtitle">Vui lòng chọn phương tiện và nhập thông tin</p>
+
+            <form id="vehicleForm" class="auth-form" novalidate>
+                <div class="payment-options">
+                    <button type="button" class="payment-btn" data-value="evo" data-name="Evo">
+                        <i class="fa-solid fa-motorcycle"></i>
+                        Evo
+                    </button>
+                    <button type="button" class="payment-btn" data-value="verox" data-name="Verox">
+                        <i class="fa-solid fa-bicycle"></i>
+                        Verox
+                    </button>
+                    <button type="button" class="payment-btn" data-value="feliz" data-name="Feliz">
+                        <i class="fa-solid fa-car"></i>
+                        Feliz
+                    </button>
+                    <button type="button" class="payment-btn" data-value="drift" data-name="Drift">
+                        <i class="fa-solid fa-truck"></i>
+                        Drift
+                    </button>
+                </div>
+
+                <!-- Thông tin phương tiện (hiển thị khi chọn Evo/Verox/Feliz/Drift) -->
+                <div class="vehicle-info-container" id="vehicleInfoContainer">
+                    <div class="info-badge">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <span id="vehicleSelectedName">Đã chọn phương tiện</span>
+                    </div>
+
+                    <label class="field">
+                        <span class="label">Mã VIN (Vehicle Identification Number) <span class="required">*</span></span>
+                        <input type="text" name="vin_code" id="vinCodeInput"
+                               placeholder="Nhập mã VIN của phương tiện">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Model phương tiện <span class="required">*</span></span>
+                        <input type="text" name="model" id="modelInput"
+                               placeholder="Ví dụ: Honda SH 2024, VinFast VF8, ...">
+                    </label>
+                </div>
+
+                <button type="button" class="payment-btn" id="otherBtn" data-value="other"
+                        style="width: 100%; margin-bottom: 12px;">
+                    <i class="fa-solid fa-shuttle-van"></i>
+                    Phương tiện khác
+                </button>
+
+                <!-- Ô nhập thông tin phương tiện khác -->
+                <div class="other-input-container" id="otherInputContainer">
+                    <label class="field">
+                        <span class="label">Mã VIN (Vehicle Identification Number) <span class="required">*</span></span>
+                        <input type="text" name="other_vin_code" id="otherVinCodeInput"
+                               placeholder="Nhập mã VIN của phương tiện">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Tên/Model phương tiện <span class="required">*</span></span>
+                        <input type="text" name="other_model" id="otherModelInput"
+                               placeholder="Nhập tên và model phương tiện">
+                    </label>
+                </div>
+
+                <input type="hidden" name="selectedVehicle" id="selectedVehicle">
+
+                <button type="submit" class="button primary full" style="margin-top: 20px;">
+                    <i class="fa-solid fa-link"></i>
+                    Xác nhận liên kết
+                </button>
+
+                <p class="terms">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Quay lại trang <a class="link" href="/my">Tài khoản</a>
+                </p>
+            </form>
+
+            <script>
+                const vehicleButtons = document.querySelectorAll('.payment-btn:not(#otherBtn)');
+                const vehicleInfoContainer = document.getElementById('vehicleInfoContainer');
+                const vinCodeInput = document.getElementById('vinCodeInput');
+                const modelInput = document.getElementById('modelInput');
+                const vehicleSelectedName = document.getElementById('vehicleSelectedName');
+                const otherInputContainer = document.getElementById('otherInputContainer');
+                const otherBtn = document.getElementById('otherBtn');
+                const otherVinCodeInput = document.getElementById('otherVinCodeInput');
+                const otherModelInput = document.getElementById('otherModelInput');
+                const selectedVehicleInput = document.getElementById('selectedVehicle');
+                let selectedValue = '';
+
+                // Tên đầy đủ của các phương tiện
+                const vehicleNames = {
+                    'evo': 'Evo (Xe máy điện)',
+                    'verox': 'Verox (Xe đạp điện)',
+                    'feliz': 'Feliz (Ô tô)',
+                    'drift': 'Drift (Xe tải)'
+                };
+
+                // Xử lý click vào các nút phương tiện chính (Evo, Verox, Feliz, Drift)
+                vehicleButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Bỏ selected của tất cả các nút
+                        vehicleButtons.forEach(b => b.classList.remove('selected'));
+                        otherBtn.classList.remove('selected');
+
+                        // Thêm selected cho nút được click
+                        this.classList.add('selected');
+
+                        // Lấy giá trị
+                        selectedValue = this.getAttribute('data-value');
+                        selectedVehicleInput.value = selectedValue;
+
+                        // Hiển thị form nhập thông tin phương tiện
+                        vehicleInfoContainer.classList.add('show');
+                        vinCodeInput.required = true;
+                        modelInput.required = true;
+                        vehicleSelectedName.textContent = vehicleNames[selectedValue];
+
+                        // Ẩn form "Phương tiện khác"
+                        otherInputContainer.classList.remove('show');
+                        otherVinCodeInput.required = false;
+                        otherModelInput.required = false;
+                        otherVinCodeInput.value = '';
+                        otherModelInput.value = '';
+
+                        // Focus vào ô nhập VIN
+                        setTimeout(() => {
+                            vinCodeInput.focus();
+                        }, 300);
+                    });
+                });
+
+                // Xử lý click vào nút "Phương tiện khác"
+                otherBtn.addEventListener('click', function() {
+                    // Bỏ selected của tất cả các nút
+                    vehicleButtons.forEach(b => b.classList.remove('selected'));
+
+                    // Toggle selected cho nút other
+                    this.classList.toggle('selected');
+
+                    if (this.classList.contains('selected')) {
+                        selectedValue = 'other';
+                        selectedVehicleInput.value = selectedValue;
+
+                        // Ẩn form phương tiện chính
+                        vehicleInfoContainer.classList.remove('show');
+                        vinCodeInput.required = false;
+                        modelInput.required = false;
+                        vinCodeInput.value = '';
+                        modelInput.value = '';
+
+                        // Hiển thị form "Phương tiện khác"
+                        otherInputContainer.classList.add('show');
+                        otherVinCodeInput.required = true;
+                        otherModelInput.required = true;
+
+                        // Focus vào ô nhập VIN
+                        setTimeout(() => {
+                            otherVinCodeInput.focus();
+                        }, 300);
+                    } else {
+                        selectedValue = '';
+                        selectedVehicleInput.value = '';
+                        otherInputContainer.classList.remove('show');
+                        otherVinCodeInput.required = false;
+                        otherModelInput.required = false;
+                        otherVinCodeInput.value = '';
+                        otherModelInput.value = '';
+                    }
+                });
+
+                // Xử lý submit form
+                document.getElementById("vehicleForm").addEventListener("submit", async function(event){
+                    event.preventDefault();
+
+                    // Validation: Kiểm tra đã chọn phương tiện chưa
+                    if (!selectedValue) {
+                        Swal.fire({
+                            heightAuto: false,
+                            icon: 'warning',
+                            title: 'Chưa chọn phương tiện',
+                            text: 'Vui lòng chọn một phương tiện',
+                            confirmButtonColor: '#4CAF50'
+                        });
+                        return;
+                    }
+
+                    let vinCode, model, vehicleName;
+
+                    // Kiểm tra và lấy dữ liệu tùy theo loại phương tiện
+                    if (['evo', 'verox', 'feliz', 'drift'].includes(selectedValue)) {
+                        vinCode = vinCodeInput.value.trim();
+                        model = modelInput.value.trim();
+                        vehicleName = vehicleNames[selectedValue];
+
+                        // Validation: Kiểm tra VIN code
+                        if (!vinCode) {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'warning',
+                                title: 'Chưa nhập mã VIN',
+                                text: 'Vui lòng nhập mã VIN của phương tiện',
+                                confirmButtonColor: '#4CAF50'
+                            });
+                            vinCodeInput.focus();
+                            return;
+                        }
+
+                        // Validation: Kiểm tra model
+                        if (!model) {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'warning',
+                                title: 'Chưa nhập model',
+                                text: 'Vui lòng nhập model của phương tiện',
+                                confirmButtonColor: '#4CAF50'
+                            });
+                            modelInput.focus();
+                            return;
+                        }
+                    } else if (selectedValue === 'other') {
+                        vinCode = otherVinCodeInput.value.trim();
+                        model = otherModelInput.value.trim();
+                        vehicleName = 'Phương tiện khác';
+
+                        // Validation: Kiểm tra VIN code
+                        if (!vinCode) {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'warning',
+                                title: 'Chưa nhập mã VIN',
+                                text: 'Vui lòng nhập mã VIN của phương tiện',
+                                confirmButtonColor: '#4CAF50'
+                            });
+                            otherVinCodeInput.focus();
+                            return;
+                        }
+
+                        // Validation: Kiểm tra tên/model
+                        if (!model) {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'warning',
+                                title: 'Chưa nhập thông tin',
+                                text: 'Vui lòng nhập tên/model của phương tiện',
+                                confirmButtonColor: '#4CAF50'
+                            });
+                            otherModelInput.focus();
+                            return;
+                        }
+                    }
+
+                    // Tạo FormData để gửi
+                    const formData = new FormData();
+                    formData.append('vin_code', vinCode);
+                    formData.append('model', model);
+
+                    try {
+                        // Gọi API
+                        const response = await fetch("/api/vehicle", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        const resultText = await response.text();
+
+                        if (response.ok) {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'success',
+                                title: 'Liên kết thành công!',
+                                html: `
+                                    <p>${resultText}</p>
+                                    <div style="margin-top: 15px; padding: 12px; background: #e8f5e9; border-radius: 8px; text-align: left;">
+                                        <p style="margin: 5px 0;"><strong>Loại:</strong> ${vehicleName}</p>
+                                        <p style="margin: 5px 0;"><strong>VIN:</strong> ${vinCode}</p>
+                                        <p style="margin: 5px 0;"><strong>Model:</strong> ${model}</p>
+                                    </div>
+                                `,
+                                confirmButtonText: 'Hoàn tất',
+                                confirmButtonColor: '#4CAF50',
+                                timer: 5000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                window.location.href = '/my';
+                            });
+                        } else {
+                            Swal.fire({
+                                heightAuto: false,
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: resultText || 'Đã xảy ra lỗi, vui lòng thử lại',
+                                confirmButtonColor: '#f44336'
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            heightAuto: false,
+                            icon: 'error',
+                            title: 'Lỗi kết nối',
+                            text: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.',
+                            confirmButtonColor: '#f44336'
+                        });
+                    }
+                });
+            </script>
+        </section>
+    </div>
+</main>
+<div th:insert="footer :: site-footer"></div>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{staff/fragments/_header :: common_header('Quản lý Đặt lịch')}"></head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <nav th:replace="~{staff/fragments/_header :: navbar}"></nav>
+    <aside th:replace="~{staff/fragments/_header :: sidebar('reservations')}"></aside>
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <div class="container-fluid">
+                <h1>Danh sách Đặt lịch (Check-in)</h1>
+            </div>
+        </section>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div th:replace="~{admin/fragments/_alerts :: alerts}"></div>
+
+                <div class="card">
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Khách hàng</th>
+                                <th>Pin Giữ Chỗ</th>
+                                <th>Giờ hẹn</th>
+                                <th>Hết hạn lúc</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="r : ${reservationPage.content}">
+                                <td th:text="${r.id}">1</td>
+                                <td>
+                                    <strong th:text="${r.user.fullName}">Nguyễn Văn A</strong><br>
+                                    <small class="text-muted" th:text="${r.user.username}">user1</small>
+                                </td>
+                                <td><code class="text-primary" th:text="${r.battery.serialNumber}">PIN-123</code></td>
+                                <td th:text="${#temporals.format(r.reservationTime, 'HH:mm dd/MM')}">10:00 20/11</td>
+                                <td th:text="${#temporals.format(r.expiresAt, 'HH:mm')}">10:30</td>
+                                <td>
+                                    <button class="btn btn-success btn-sm"
+                                            title="Khách đến nhận pin"
+                                            th:data-id="${r.id}"
+                                            th:data-user="${r.user.fullName}"
+                                            th:data-serial="${r.battery.serialNumber}"
+                                            th:data-userid="${r.user.id}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-user'), this.getAttribute('data-serial'), this.getAttribute('data-userid'))">
+                                        <i class="fas fa-check-circle"></i> Khách đến
+                                    </button>
+
+                                    <form th:action="@{/staff/reservations/cancel}" method="post" style="display:inline;">
+                                        <input type="hidden" name="reservationId" th:value="${r.id}">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                title="Hủy đơn này"
+                                                onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt lịch này và trả pin về kho?')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${reservationPage.empty}">
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="fas fa-calendar-times fa-2x mb-2"></i><br>
+                                    Hiện không có khách đặt lịch nào đang chờ.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card-footer clearfix" th:if="${reservationPage.totalPages > 1}">
+                        <ul class="pagination pagination-sm m-0 float-right">
+                            <li class="page-item" th:classappend="${reservationPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/staff/reservations(page=${reservationPage.number - 1})}">«</a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, reservationPage.totalPages - 1)}"
+                                th:classappend="${i == reservationPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/staff/reservations(page=${i})}" th:text="${i + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${reservationPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/staff/reservations(page=${reservationPage.number + 1})}">»</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div th:insert="~{admin/fragments/_footer :: footer}"></div>
+</div>
+
+<div th:insert="~{admin/fragments/_footer :: common_scripts}"></div>
+
+<div class="modal fade" id="checkinModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form th:action="@{/staff/reservations/complete}" method="post">
+                <div class="modal-header bg-success">
+                    <h5 class="modal-title text-white"><i class="fas fa-check-circle mr-2"></i>Xác nhận Giao dịch (Check-in)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="reservationId" id="modalResId">
+
+                    <div class="alert alert-light border">
+                        <p class="mb-1">Khách hàng: <strong id="modalUser" class="text-dark"></strong></p>
+                        <p class="mb-0">Pin mới (Đã giữ): <strong id="modalBatteryOut" class="text-primary"></strong></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pin Khách Trả lại (Pin cũ):</label>
+                        <select name="batteryInId" class="form-control" required id="batteryInSelect">
+                            <option value="">-- Chọn pin cũ khách trả --</option>
+                            <option th:each="bat : ${rentedBatteries}"
+                                    th:value="${bat.id}"
+                                    th:text="${bat.serialNumber} + ' (' + ${bat.currentChargePercentage} + '%)'"
+                                    th:data-user-id="${bat.currentUser?.id}"></option>
+                        </select>
+                        <small class="form-text text-muted">Hệ thống tự động lọc danh sách pin mà khách này đang thuê.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phương thức thanh toán:</label>
+                        <select name="paymentMethod" class="form-control">
+                            <option value="CASH">Tiền mặt</option>
+                            <option value="WALLET">Ví điện tử (Trừ số dư)</option>
+                            <option value="CARD">Thẻ tín dụng/ATM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success font-weight-bold">Hoàn tất & Đổi pin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCheckinModal(id, user, serial, userId) {
+        // Điền thông tin vào modal
+        document.getElementById('modalResId').value = id;
+        document.getElementById('modalUser').innerText = user;
+        document.getElementById('modalBatteryOut').innerText = serial;
+
+        // Reset dropdown pin cũ
+        var batterySelect = document.getElementById('batteryInSelect');
+        batterySelect.value = "";
+
+        var options = batterySelect.querySelectorAll('option');
+        var hasBattery = false;
+
+        // Lọc dropdown: Chỉ hiện pin của đúng khách hàng này (userId)
+        options.forEach(function(option) {
+            if (option.value === "") {
+                option.style.display = "block"; // Luôn hiện option mặc định
+                return;
+            }
+
+            var optionUserId = option.getAttribute('data-user-id');
+
+            // So sánh ID (chuyển về string để chắc chắn)
+            if (optionUserId && optionUserId.toString() === userId.toString()) {
+                option.style.display = "block";
+                hasBattery = true;
+            } else {
+                option.style.display = "none";
+            }
+        });
+
+        // Nếu khách không có pin nào đang thuê (lạ nhỉ?), có thể hiện cảnh báo
+        if (!hasBattery) {
+            // Tùy chọn: alert("Cảnh báo: Khách hàng này hiện không thuê pin nào trong hệ thống!");
+        }
+
+        // Mở Modal (Sử dụng jQuery của Bootstrap 4)
+        $('#checkinModal').modal('show');
+    }
+</script>
+
+</body>
+</html>
